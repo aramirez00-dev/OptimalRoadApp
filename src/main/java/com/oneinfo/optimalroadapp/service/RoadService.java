@@ -1,6 +1,7 @@
 package com.oneinfo.optimalroadapp.service;
 
 import com.oneinfo.optimalroadapp.entity.Road;
+import com.oneinfo.optimalroadapp.exception.ValidationException;
 import com.oneinfo.optimalroadapp.repository.RoadRepository;
 import org.springframework.stereotype.Service;
 
@@ -19,6 +20,19 @@ public class RoadService {
     }
 
     public void addRoad(Long id, double cost, Long sourceId, Long destinationId) {
+
+        if (id == null || sourceId == null || destinationId == null) {
+            throw new ValidationException("Todos los campos son obligatorios");
+        }
+
+        if (cost < 0) {
+            throw new ValidationException("El camino debe tener un costo positivo");
+        }
+
+        // Check for unique ID
+        if (roadRepository.findAll().containsKey(id)) {
+            throw new ValidationException("El ID del camino debe ser único");
+        }
 
         Road road = new Road(id, cost, sourceId, destinationId);
         roadRepository.save(road);

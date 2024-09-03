@@ -1,6 +1,7 @@
 package com.oneinfo.optimalroadapp.service;
 
 import com.oneinfo.optimalroadapp.entity.Station;
+import com.oneinfo.optimalroadapp.exception.ValidationException;
 import com.oneinfo.optimalroadapp.repository.StationRepository;
 import org.springframework.stereotype.Service;
 
@@ -18,6 +19,19 @@ public class StationService {
     }
 
     public void addStation(Long id, String name) {
+
+        if (name == null || name.trim().isEmpty()) {
+            throw new ValidationException("Todos los campos son obligatorios");
+        }
+
+        if (id <= 0 || id.getClass() != Long.class) {
+            throw new ValidationException("El ID de la estación debe ser un número entero positivo");
+        }
+
+        if (stationRepository.findAll().containsKey(id)) {
+            throw new ValidationException("El ID de la estación no debe ser repetido");
+        }
+
         Station station = new Station(id, name);
         stationRepository.save(station);
         showStations(stationRepository.findAll());

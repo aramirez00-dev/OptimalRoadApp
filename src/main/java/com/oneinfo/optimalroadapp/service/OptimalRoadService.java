@@ -1,5 +1,6 @@
 package com.oneinfo.optimalroadapp.service;
 import com.oneinfo.optimalroadapp.entity.Road;
+import com.oneinfo.optimalroadapp.exception.ValidationException;
 import com.oneinfo.optimalroadapp.repository.RoadRepository;
 import com.oneinfo.optimalroadapp.repository.StationRepository;
 import com.oneinfo.optimalroadapp.utils.Node;
@@ -20,6 +21,30 @@ public class OptimalRoadService {
     public OptimalRoadService(RoadRepository roadRepository, StationRepository stationRepository) {
         this.roadRepository = roadRepository;
         this.stationRepository = stationRepository;
+    }
+
+    public OptimalRoad getOptimalRoad (Long sourceId, Long destinationId){
+        if (!stationRepository.findAll().containsKey(sourceId) || !stationRepository.findAll().containsKey(destinationId)) {
+            throw new ValidationException("Tanto el ID de origen como el ID de destino deben corresponder a estaciones existentes.");
+        }
+
+        boolean sourceConnected = roadRepository.findAll().values().stream().anyMatch(r -> r.getSourceId().equals(sourceId));
+        boolean destinationConnected = roadRepository.findAll().values().stream().anyMatch(r -> r.getDestinationId().equals(destinationId));
+
+        if (!sourceConnected) {
+            throw new ValidationException("Tiene que haber al menos un camino con ID de origen igual a la enviada");
+        }
+
+        if (!destinationConnected) {
+            throw new ValidationException("Tiene que haber al menos un camino con ID de destino igual a la enviada");
+        }
+
+        OptimalRoad optimalRoad = findOptimalRoad(sourceId, destinationId);
+        if (optimalRoad.getCost() == Double.POSITIVE_INFINITY) {
+            throw new ValidationException("No se ha encontrado un camino que conecte origen con destino.");
+        }
+
+        return optimalRoad;
     }
 
     public OptimalRoad findOptimalRoad(Long sourceId, Long destinationId) {

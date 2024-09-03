@@ -28,7 +28,7 @@ public class RoadController {
 
     @GetMapping("/{sourceId}/{destinationId}")
     public ResponseEntity<?> getOptimalRoute(@PathVariable Long sourceId, @PathVariable Long destinationId) {
-        OptimalRoad optimalRoute = optimalRoadService.findOptimalRoad(sourceId, destinationId);
+        OptimalRoad optimalRoute = optimalRoadService.getOptimalRoad(sourceId, destinationId);
         return ResponseEntity.ok(optimalRoute);
     }
 }
